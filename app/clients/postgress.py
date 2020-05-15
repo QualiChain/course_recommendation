@@ -2,8 +2,8 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
-from app.settings import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB
-from app.clients.models import Base, JoinedTableSkillsCourses, Skill, Course, Skill_Course
+from settings import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB
+from clients.models import Base, JoinedTableSkillsCourses, Skill, Course, Skill_Course
 
 
 class PostgresClient(object):
