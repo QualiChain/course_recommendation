@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from app.settings import SUBMIT_SOURCE
+from settings import SUBMIT_SOURCE, ASK_STORAGE_URI
 
 
 class AnalEyeZerClient(object):
@@ -21,6 +21,24 @@ class AnalEyeZerClient(object):
 
         response = requests.post(
             url=SUBMIT_SOURCE,
+            data=payload,
+            headers=headers
+        )
+        return response
+
+    @staticmethod
+    def ask_analeyezer(**kwargs):
+        """
+        This function is used to match courses data
+
+        :param kwargs: provided kwargs
+        :return: Matched courses from AnalEyeZer
+        """
+        payload = json.dumps(**kwargs)
+        headers = {'Content-Type': 'application/json'}
+
+        response = requests.post(
+            url=ASK_STORAGE_URI,
             data=payload,
             headers=headers
         )

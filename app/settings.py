@@ -9,6 +9,7 @@ POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "qualichain.epu.ntua.gr")
 # Analeyezer Settings
 ANALEYEZER_HOST = os.environ.get("ANALEYEZER_HOST", "qualichain.epu.ntua.gr")
 ANALEYEZER_PORT = os.environ.get("ANALEYEZER_PORT", 5002)
+
 ASK_STORAGE_URI = "http://{}:{}/ask/storage".format(
     ANALEYEZER_HOST,
     ANALEYEZER_PORT
