@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
-from settings import ENGINE_URI
+from settings import ENGINE_STRING
 
 
 class PostgresClient(object):
@@ -11,7 +11,7 @@ class PostgresClient(object):
     """
 
     def __init__(self):
-        self.engine = create_engine(ENGINE_URI)
+        self.engine = create_engine(ENGINE_STRING)
 
     def get_table(self, table, sql_command=None):
         """
