@@ -29,6 +29,10 @@ class PostgresClient(object):
             table_df = pd.DataFrame()
         return table_df
 
+    def save_table(self, table_name, data_frame, if_exists='fail'):
+        """This function is used to save a pandas DataFrame to Postgress"""
+        data_frame.to_sql(table_name, if_exists=if_exists, con=self.engine)
+
     def load_tables(self):
         """This function is used to load these tables"""
 
@@ -52,9 +56,12 @@ class PostgresClient(object):
     def load_joined_table_to_db(self):
         """Upload joined table to DB"""
 
-        print("Uploading joined table to Postgres")
+        print("Uploading joined table to Postgres", flush=True)
 
         table_exists = self.engine.has_table('skills_courses_table')
         if not table_exists:
             joined_table = self.join_skills_and_courses()
-            joined_table.to_sql('skills_courses_table', con=self.engine)
+            self.save_table(
+                table_name='skills_courses_table',
+                if_exists='replace'
+            )
