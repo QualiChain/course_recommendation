@@ -1,5 +1,5 @@
 
-from clients.postgress import *
+from clients.postgress import PostgresClient
 
 from utils import create_joined_table_index
 
