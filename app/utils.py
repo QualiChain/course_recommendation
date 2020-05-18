@@ -29,17 +29,12 @@ def filter_extracted_skills(**kwargs):
     return filtered_skill
 
 
-def create_joined_table_index():
+def create_joined_table_index(**kwargs):
     """
     This function is used to load the joined data source to elasticsearch
     """
     analeyezer = AnalEyeZerClient()
-    response = analeyezer.commit_data_source(
-        uri="postgresql://admin:admin@mediator_api_db:5432/api_db",
-        type="POSTGRES",
-        part="skills_courses_table",
-        index="curriculum_index"
-    )
+    response = analeyezer.commit_data_source(**kwargs)
     if response.status_code == 400:
         print('Index creation to Elasticsearch failed.')
     else:
