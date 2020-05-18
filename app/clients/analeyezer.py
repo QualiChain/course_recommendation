@@ -16,8 +16,9 @@ class AnalEyeZerClient(object):
         :param kwargs: provided kwargs
         :return: None
         """
-        payload = json.dumps(**kwargs)
+        payload = json.dumps(kwargs)
         headers = {'Content-Type': 'application/json'}
+
 
         response = requests.post(
             url=SUBMIT_SOURCE,
@@ -34,7 +35,7 @@ class AnalEyeZerClient(object):
         :param kwargs: provided kwargs
         :return: Matched courses from AnalEyeZer
         """
-        payload = json.dumps(**kwargs)
+        payload = json.dumps(kwargs)
         headers = {'Content-Type': 'application/json'}
 
         response = requests.post(

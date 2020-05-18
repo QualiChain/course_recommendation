@@ -18,3 +18,7 @@ SUBMIT_SOURCE = "http://{}:{}/receive/source".format(
     ANALEYEZER_HOST,
     ANALEYEZER_PORT
 )
+
+# APP SETTINGS
+API_PORT = os.environ.get('API_PORT', 5000)
+
