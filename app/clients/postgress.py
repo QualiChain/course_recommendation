@@ -3,6 +3,8 @@ import pandas as pd
 
 from settings import ENGINE_STRING
 
+from utils import filter_extracted_skills
+
 
 class PostgresClient(object):
     """
@@ -63,5 +65,20 @@ class PostgresClient(object):
             joined_table = self.join_skills_and_courses()
             self.save_table(
                 table_name='skills_courses_table',
+                data_frame=joined_table,
                 if_exists='replace'
             )
+
+    def transform_extracted_skills(self):
+        """This function is used to transform skills in extracted skill"""
+        table_name = 'extracted_skill'
+        if_exists = 'replace'
+
+        extracted_skills = self.get_table(table=table_name)
+        extracted_skills['skill'] = extracted_skills['skill'].apply(lambda skill: filter_extracted_skills(skill=skill))
+
+        self.save_table(
+            table_name=table_name,
+            data_frame=extracted_skills,
+            if_exists=if_exists
+        )
