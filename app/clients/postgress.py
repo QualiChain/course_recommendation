@@ -13,19 +13,21 @@ class PostgresClient(object):
     def __init__(self):
         self.engine = create_engine(ENGINE_STRING)
 
-    def get_table(self, table, sql_command=None):
+    def get_table(self, **kwargs):
         """
         This function is used to load the provided table as a Pandas DataFrame
 
-        :param table: provided table name
-        :param sql_command: provided sql command to filter table
+        :param kwargs: provided kwargs
         :return: pandas DataFrame
         """
-        if sql_command:
-            table_df = pd.read_sql_query(sql_command, self.command)
-        else:
+        if 'sql_command' in kwargs.keys():
+            sql_command = kwargs['sql_command']
+            table_df = pd.read_sql_query(sql_command, self.engine)
+        elif 'table' in kwargs.keys():
+            table = kwargs['table']
             table_df = pd.read_sql_table(table, self.engine)
-
+        else:
+            table_df = pd.DataFrame()
         return table_df
 
     def load_tables(self):
