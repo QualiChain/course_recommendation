@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
-from settings import POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB
+from settings import ENGINE_URI
 
 
 class PostgresClient(object):
@@ -11,9 +11,22 @@ class PostgresClient(object):
     """
 
     def __init__(self):
-        self.engine = create_engine(
-            'postgresql+psycopg2://{}:{}@{}/{}'.format(POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB)
-        )
+        self.engine = create_engine(ENGINE_URI)
+
+    def get_table(self, table, sql_command=None):
+        """
+        This function is used to load the provided table as a Pandas DataFrame
+
+        :param table: provided table name
+        :param sql_command: provided sql command to filter table
+        :return: pandas DataFrame
+        """
+        if sql_command:
+            table_df = pd.read_sql_query(sql_command, self.command)
+        else:
+            table_df = pd.read_sql_table(table, self.engine)
+
+        return table_df
 
     def load_tables(self):
         courses_df = pd.read_sql_table('curriculum_designer_course', self.engine)
