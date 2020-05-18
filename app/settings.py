@@ -6,6 +6,13 @@ POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "admin")
 POSTGRES_DB = os.environ.get("POSTGRES_DB", "api_db")
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "qualichain.epu.ntua.gr")
 
+ENGINE_STRING = 'postgresql+psycopg2://{}:{}@{}/{}'.format(
+    POSTGRES_USER,
+    POSTGRES_PASSWORD,
+    POSTGRES_HOST,
+    POSTGRES_DB
+)
+
 # Analeyezer Settings
 ANALEYEZER_HOST = os.environ.get("ANALEYEZER_HOST", "qualichain.epu.ntua.gr")
 ANALEYEZER_PORT = os.environ.get("ANALEYEZER_PORT", 5002)
