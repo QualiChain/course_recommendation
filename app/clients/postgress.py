@@ -14,9 +14,6 @@ class PostgresClient(object):
         self.engine = create_engine(
             'postgresql+psycopg2://{}:{}@{}/{}'.format(POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_HOST, POSTGRES_DB)
         )
-        self.meta = MetaData()
-        self.conn = self.engine.connect()
-        self.session = sessionmaker(bind=self.engine)()
 
     def load_tables(self):
         courses_df = pd.read_sql_table('curriculum_designer_course', self.engine)
