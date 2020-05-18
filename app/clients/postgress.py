@@ -1,10 +1,7 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 import pandas as pd
 
 from settings import ENGINE_STRING
-
-from clients.analeyezer import AnalEyeZerClient
 
 
 class PostgresClient(object):
@@ -43,7 +40,8 @@ class PostgresClient(object):
     def join_skills_and_courses(self):
         """This function is used to join courses and skills tables"""
 
-        print("Joining tables Skills and Courses")
+        print("Joining tables Skills and Courses", flush=True)
+
         courses_df, course_skill_df, skill_df = self.load_tables()
         temp = pd.merge(courses_df, course_skill_df, left_on='id', right_on='course_id')
         joined_table = pd.merge(temp, skill_df, left_on='skill_id', right_on='id')
@@ -55,18 +53,8 @@ class PostgresClient(object):
         """Upload joined table to DB"""
 
         print("Uploading joined table to Postgres")
+
         table_exists = self.engine.has_table('skills_courses_table')
         if not table_exists:
             joined_table = self.join_skills_and_courses()
             joined_table.to_sql('skills_courses_table', con=self.engine)
-        self.create_joined_table_index()
-
-    def create_joined_table_index(self):
-        analeyezer = AnalEyeZerClient()
-        response = analeyezer.commit_data_source(uri="postgresql://admin:admin@mediator_api_db:5432/api_db",
-                                                 type="POSTGRES", part="skills_courses_table", index="curriculum_index")
-        if response.status_code == 400:
-            print('Index creation to Elasticsearch failed.')
-        else:
-            print('Index successfully created')
-

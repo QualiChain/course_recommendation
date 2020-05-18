@@ -1,3 +1,6 @@
+from clients.analeyezer import AnalEyeZerClient
+
+
 def filter_extracted_skills(**kwargs):
     """
     This function is used to transform extracted skill table
@@ -24,3 +27,20 @@ def filter_extracted_skills(**kwargs):
             filtered_skill = skill
 
     return filtered_skill
+
+
+def create_joined_table_index():
+    """
+    This function is used to load the joined data source to elasticsearch
+    """
+    analeyezer = AnalEyeZerClient()
+    response = analeyezer.commit_data_source(
+        uri="postgresql://admin:admin@mediator_api_db:5432/api_db",
+        type="POSTGRES",
+        part="skills_courses_table",
+        index="curriculum_index"
+    )
+    if response.status_code == 400:
+        print('Index creation to Elasticsearch failed.')
+    else:
+        print('Index successfully created')
