@@ -26,7 +26,9 @@ def filter_extracted_skills(**kwargs):
         else:
             filtered_skill = skill
 
-    return filtered_skill
+    remove_dump_skills = filtered_skill.loc[~filtered_skill.isin(['Assurance', 'LeSS', 'Computer Science'])]
+
+    return remove_dump_skills
 
 
 def create_joined_table_index(**kwargs):
