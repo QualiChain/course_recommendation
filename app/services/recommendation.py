@@ -24,15 +24,16 @@ class Recommendation(object):
         return top_job_skills
 
     @staticmethod
-    def get_top_skills(job_skills, topN=3):
+    def get_top_skills(job_skills, column, topN=3):
         """
         This function is used to retrieve top skills for job names
 
         :param job_skills: job_skills pandas DataFrame
+        :param column: this column could be `skill` or `job_name`
         :param topN: topN skills for each job name,default=3
         :return: top skills
         """
-        top_skills = job_skills.groupby(['skill']).apply(
+        top_skills = job_skills.groupby([column]).apply(
             lambda grp: grp.nlargest(topN, ['frequencyOfMention']).reset_index(drop=True)
         )
         return top_skills
@@ -48,6 +49,15 @@ class Recommendation(object):
         jobs = top_skills.groupby('job_name').sum().sort_values('frequencyOfMention', ascending=False).reset_index()
         important_jobs = jobs['job_name'].to_list()
         return important_jobs
+
+    def proposed_skills(self, important_jobs):
+        """This function is used to find proposed skills per job name"""
+
+        statement = """SELECT * FROM extracted_skill WHERE job_name in {}""".format(tuple(important_jobs))
+        table_df = self.pg_client.get_table(sql_command=statement)
+
+        proposed_skills_per_job = self.get_top_skills(job_skills=table_df, column='job_name', topN=5)
+        return proposed_skills_per_job
 
 
 
