@@ -1,10 +1,9 @@
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 import pandas as pd
 
 from settings import ENGINE_STRING
 
-from clients.analeyezer import AnalEyeZerClient
+from utils import filter_extracted_skills
 
 
 class PostgresClient(object):
@@ -15,20 +14,26 @@ class PostgresClient(object):
     def __init__(self):
         self.engine = create_engine(ENGINE_STRING)
 
-    def get_table(self, table, sql_command=None):
+    def get_table(self, **kwargs):
         """
         This function is used to load the provided table as a Pandas DataFrame
 
-        :param table: provided table name
-        :param sql_command: provided sql command to filter table
+        :param kwargs: provided kwargs
         :return: pandas DataFrame
         """
-        if sql_command:
-            table_df = pd.read_sql_query(sql_command, self.command)
-        else:
+        if 'sql_command' in kwargs.keys():
+            sql_command = kwargs['sql_command']
+            table_df = pd.read_sql_query(sql_command, self.engine)
+        elif 'table' in kwargs.keys():
+            table = kwargs['table']
             table_df = pd.read_sql_table(table, self.engine)
-
+        else:
+            table_df = pd.DataFrame()
         return table_df
+
+    def save_table(self, table_name, data_frame, if_exists='fail'):
+        """This function is used to save a pandas DataFrame to Postgress"""
+        data_frame.to_sql(table_name, if_exists=if_exists, con=self.engine)
 
     def load_tables(self):
         """This function is used to load these tables"""
@@ -41,7 +46,8 @@ class PostgresClient(object):
     def join_skills_and_courses(self):
         """This function is used to join courses and skills tables"""
 
-        print("Joining tables Skills and Courses")
+        print("Joining tables Skills and Courses", flush=True)
+
         courses_df, course_skill_df, skill_df = self.load_tables()
         temp = pd.merge(courses_df, course_skill_df, left_on='id', right_on='course_id')
         joined_table = pd.merge(temp, skill_df, left_on='skill_id', right_on='id')
@@ -52,20 +58,28 @@ class PostgresClient(object):
     def load_joined_table_to_db(self):
         """Upload joined table to DB"""
 
-        print("Uploading joined table to Postgres")
+        print("Uploading joined table to Postgres", flush=True)
+
         table_exists = self.engine.has_table('skills_courses_table')
         if not table_exists:
             joined_table = self.join_skills_and_courses()
-            joined_table.to_sql('skills_courses_table', con=self.engine)
+            self.save_table(
+                table_name='skills_courses_table',
+                data_frame=joined_table,
+                if_exists='replace'
+            )
             print("Table saved to Postgres")
-        self.create_joined_table_index()
 
-    def create_joined_table_index(self):
-        analeyezer = AnalEyeZerClient()
-        response = analeyezer.commit_data_source(uri="postgresql://admin:admin@mediator_api_db:5432/api_db",
-                                                 type="POSTGRES", part="skills_courses_table", index="curriculum_index")
-        if response.status_code == 400:
-            print('Index creation to Elasticsearch failed.')
-        else:
-            print('Index successfully created')
+    def transform_extracted_skills(self):
+        """This function is used to transform skills in extracted skill"""
+        table_name = 'extracted_skill'
+        if_exists = 'replace'
 
+        extracted_skills = self.get_table(table=table_name)
+        extracted_skills['skill'] = extracted_skills['skill'].apply(lambda skill: filter_extracted_skills(skill=skill))
+
+        self.save_table(
+            table_name=table_name,
+            data_frame=extracted_skills,
+            if_exists=if_exists
+        )
