@@ -45,8 +45,8 @@ class PostgresClient(object):
         courses_df, course_skill_df, skill_df = self.load_tables()
         temp = pd.merge(courses_df, course_skill_df, left_on='id', right_on='course_id')
         joined_table = pd.merge(temp, skill_df, left_on='skill_id', right_on='id')
-        joined_table = joined_table[['id', 'course_title', 'course_description', 'skill_id', 'skill_title']].rename(
-            columns={'id': 'course_id'})
+        joined_table = joined_table[['id_x', 'course_title', 'course_description', 'skill_id', 'skill_title']].rename(
+            columns={'id_x': 'course_id'})
         return joined_table
 
     def load_joined_table_to_db(self):
@@ -57,6 +57,7 @@ class PostgresClient(object):
         if not table_exists:
             joined_table = self.join_skills_and_courses()
             joined_table.to_sql('skills_courses_table', con=self.engine)
+            print("Table saved to Postgres")
         self.create_joined_table_index()
 
     def create_joined_table_index(self):
