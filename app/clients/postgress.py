@@ -3,7 +3,7 @@ import pandas as pd
 
 from settings import ENGINE_STRING
 
-from utils import filter_extracted_skills
+from utils import filter_extracted_skills, remove_dump_skills
 
 
 class PostgresClient(object):
@@ -33,7 +33,7 @@ class PostgresClient(object):
 
     def save_table(self, table_name, data_frame, if_exists='fail'):
         """This function is used to save a pandas DataFrame to Postgress"""
-        data_frame.to_sql(table_name, if_exists=if_exists, con=self.engine)
+        data_frame.to_sql(table_name, if_exists=if_exists, con=self.engine, index=False)
 
     def load_tables(self):
         """This function is used to load these tables"""
@@ -77,9 +77,10 @@ class PostgresClient(object):
 
         extracted_skills = self.get_table(table=table_name)
         extracted_skills['skill'] = extracted_skills['skill'].apply(lambda skill: filter_extracted_skills(skill=skill))
+        extr_skills = remove_dump_skills(extracted_skills)
 
         self.save_table(
             table_name=table_name,
-            data_frame=extracted_skills,
+            data_frame=extr_skills,
             if_exists=if_exists
         )
