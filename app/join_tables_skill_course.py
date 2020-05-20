@@ -1,7 +1,13 @@
+import logging
+import sys
 
 from clients.postgress import PostgresClient
 
 from utils import create_joined_table_index
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     post_client = PostgresClient()
@@ -20,5 +26,5 @@ if __name__ == "__main__":
         index=index
     )
 
-    print("Transform saved extracted skills from Dobie", flush=True)
+    log.info("Transform saved extracted skills from Dobie")
     post_client.transform_extracted_skills()

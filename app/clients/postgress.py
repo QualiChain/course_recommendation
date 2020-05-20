@@ -1,9 +1,16 @@
+import logging
+import sys
+
 from sqlalchemy import create_engine
 import pandas as pd
 
 from settings import ENGINE_STRING
 
 from utils import filter_extracted_skills, remove_dump_skills
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+log = logging.getLogger(__name__)
 
 
 class PostgresClient(object):
@@ -46,7 +53,7 @@ class PostgresClient(object):
     def join_skills_and_courses(self):
         """This function is used to join courses and skills tables"""
 
-        print("Joining tables Skills and Courses", flush=True)
+        log.info("Joining tables Skills and Courses")
 
         courses_df, course_skill_df, skill_df = self.load_tables()
         temp = pd.merge(courses_df, course_skill_df, left_on='id', right_on='course_id')
@@ -58,7 +65,7 @@ class PostgresClient(object):
     def load_joined_table_to_db(self):
         """Upload joined table to DB"""
 
-        print("Uploading joined table to Postgres", flush=True)
+        log.info("Uploading joined table to Postgres")
 
         table_exists = self.engine.has_table('skills_courses_table')
         if not table_exists:
@@ -68,7 +75,7 @@ class PostgresClient(object):
                 data_frame=joined_table,
                 if_exists='replace'
             )
-            print("Table saved to Postgres")
+            log.info("Table saved to Postgres")
 
     def transform_extracted_skills(self):
         """This function is used to transform skills in extracted skill"""

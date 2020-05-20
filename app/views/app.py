@@ -4,12 +4,10 @@ import sys
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-
 '''Run flask by executing the command python -m flask run'''
 
 app = Flask(__name__)
 CORS(app)
-
 
 
 @app.route('/get_skills_from_cv', methods=['POST'])
@@ -34,4 +32,3 @@ def get_skills_from_cv():
     results = {'status': status, 'results': results}
 
     return jsonify(results)
-
