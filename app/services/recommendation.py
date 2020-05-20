@@ -103,4 +103,6 @@ class Recommendation(object):
 
         for job in importan_jobs:
             log.info("Job: {}".format(job))
-            print(get_proposed_skills.loc[get_proposed_skills['job_name'] == job])
+            job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
+            job_top_skills = job_part['skill'].to_list()
+            print(job_top_skills)
