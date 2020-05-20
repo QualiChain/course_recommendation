@@ -32,7 +32,7 @@ def filter_extracted_skills(**kwargs):
 def remove_dump_skills(skills_df):
     """This function is used to remove dump skills extracted from Dobie"""
     remove_skills = skills_df.loc[~skills_df['skill'].isin(
-        ['Assurance', 'LeSS', 'Computer Science', 'Development', 'Programming'])]
+        ['Assurance', 'LeSS', 'Computer Science', 'Development', 'Programming', 'BDD', 'TDD'])]
     return remove_skills
 
 
