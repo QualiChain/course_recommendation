@@ -1,4 +1,11 @@
+import logging
+import sys
+
 from clients.postgress import PostgresClient
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+log = logging.getLogger(__name__)
 
 
 class Recommendation(object):
@@ -70,3 +77,7 @@ class Recommendation(object):
 
         importan_jobs = self.find_unique_jobs(get_top_jobs)
         get_proposed_skills = self.proposed_skills(importan_jobs)
+
+        for job in importan_jobs:
+            log.info("Job: {}".format(job))
+            print(get_proposed_skills.loc[get_proposed_skills['job_name'] == job])
