@@ -19,7 +19,6 @@ class AnalEyeZerClient(object):
         payload = json.dumps(kwargs)
         headers = {'Content-Type': 'application/json'}
 
-
         response = requests.post(
             url=SUBMIT_SOURCE,
             data=payload,
@@ -44,3 +43,46 @@ class AnalEyeZerClient(object):
             headers=headers
         )
         return response
+
+    def create_elastic_query_for_courses(self, skill_list):
+        skill_list = skill_list
+        query_dict = {}
+        query_dict['query'] = 'bool_query'
+        query_dict['index'] = 'curriculum_index'
+        query_dict['min_score'] = 10
+        query_dict['_source'] = ["course_id", "course_title"]
+        query_dict['should'] = [
+            {"multi_match": {
+                "query": skill,
+                "fields": ["course_description", "skill_title^3"],
+                "type": "phrase",
+                "slop": 2
+            } for skill in skill_list}
+        ]
+        query_dict['_source'] = ["course_id", "course_title"]
+        query_dict['aggs'] = {
+            "top_tags": {
+                "terms": {
+                    "field": "course_id",
+                    "size": 3
+                },
+                "aggs": {
+                    "top_course_hits": {
+                        "top_hits": {
+                            "sort": [
+                                {
+                                    "course_id": {
+                                        "order": "desc"
+                                    }
+                                }
+                            ],
+                            "_source": {
+                                "includes": ["course_id", "course_title"]
+                            },
+                            "size": 1
+                        }
+                    }
+                }
+            }
+        }
+        return query_dict
