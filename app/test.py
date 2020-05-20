@@ -1,7 +1,7 @@
 from services.recommendation import Recommendation
 
 r = Recommendation()
-r.recommend(cv_skills=['Java', 'SQL'])
+r.recommend(cv_skills=['Laravel', 'Spark'])
 # top_job_skills = r.find_related_jobs(cv_skills=['Java', 'SQL'])
 # get_top_jobs = r.get_top_skills(top_job_skills, column='skill', topN=3)
 # importan_jobs = r.find_unique_jobs(get_top_jobs)

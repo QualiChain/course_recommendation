@@ -27,7 +27,7 @@ def get_skills_from_cv():
     else:
         description = 'Incorrect Request'
         results = {}
-        status = '500'
+        status = '400'
 
     results = {'status': status, 'results': results}
 
