@@ -56,5 +56,17 @@ class Recommendation(object):
         statement = """SELECT * FROM extracted_skill WHERE job_name in {}""".format(tuple(important_jobs))
         table_df = self.pg_client.get_table(sql_command=statement)
 
-        proposed_skills_per_job = self.get_top_skills(job_skills=table_df, column='job_name', topN=5).reset_index(drop=True)
+        proposed_skills_per_job = self.get_top_skills(job_skills=table_df, column='job_name', topN=5).reset_index(
+            drop=True)
         return proposed_skills_per_job
+
+    def recommend(self, **kwargs):
+        """This function is used to find proper recommendations for provided skills"""
+
+        cv_skills = kwargs['cv_skills']
+
+        top_job_skills = self.find_related_jobs(cv_skills=cv_skills)
+        get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
+
+        importan_jobs = self.find_unique_jobs(get_top_jobs)
+        get_proposed_skills = self.proposed_skills(importan_jobs)
