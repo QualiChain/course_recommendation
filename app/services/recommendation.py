@@ -105,4 +105,4 @@ class Recommendation(object):
             log.info("Job: {}".format(job))
             job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
             job_top_skills = job_part['skill'].to_list()
-            print(job_top_skills)
+            log.info(job_top_skills)
