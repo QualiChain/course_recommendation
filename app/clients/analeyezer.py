@@ -59,7 +59,6 @@ class AnalEyeZerClient(object):
                 "slop": 2
             } for skill in skill_list}
         ]
-        query_dict['_source'] = ["course_id", "course_title"]
         query_dict['aggs'] = {
             "top_tags": {
                 "terms": {
