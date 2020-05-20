@@ -56,15 +56,5 @@ class Recommendation(object):
         statement = """SELECT * FROM extracted_skill WHERE job_name in {}""".format(tuple(important_jobs))
         table_df = self.pg_client.get_table(sql_command=statement)
 
-        proposed_skills_per_job = self.get_top_skills(job_skills=table_df, column='job_name', topN=5)
+        proposed_skills_per_job = self.get_top_skills(job_skills=table_df, column='job_name', topN=5).reset_index(drop=True)
         return proposed_skills_per_job
-
-
-
-# sql_command = """SELECT * FROM extracted_skill WHERE skill in ('Java', 'SQL')"""
-#
-# pg_client = PostgresClient()
-# table_df = pg_client.get_table(sql_command=sql_command)
-# print(table_df.head())
-#
-# top3 = table_df.groupby(['skill']).apply(lambda x: x.nlargest(3, ['frequencyOfMention'])).reset_index(drop=True)
