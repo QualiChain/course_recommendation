@@ -17,6 +17,7 @@ def filter_extracted_skills(**kwargs):
     :return: filtered skill
     """
     skill = kwargs['skill']
+    skills_to_transform = ["Java Script", "Type Script", "Lab VIEW"]
 
     split_skill = skill.split(" ")
     bins_len = len(split_skill)
@@ -29,12 +30,11 @@ def filter_extracted_skills(**kwargs):
 
         if len(second_bin) <= 3 or len(first_bin) <= 2:
             filtered_skill = "".join(split_skill)
-        elif skill == "Java Script":
-            filtered_skill = "JavaScript"
-        elif skill == "Type Script":
-            filtered_skill = "TypeScript"
-        elif skill == "Lab VIEW":
-            filtered_skill = "LabVIEW"
+        elif skill in skills_to_transform:
+            transformed_skill = skill.split()
+            filtered_skill = "".join(transformed_skill)
+        elif skill == "OOP":
+            filtered_skill = "Object-oriented programming"
         else:
             filtered_skill = skill
 
