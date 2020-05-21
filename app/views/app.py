@@ -4,6 +4,10 @@ import sys
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+log = logging.getLogger(__name__)
+
 '''Run flask by executing the command python -m flask run'''
 
 app = Flask(__name__)

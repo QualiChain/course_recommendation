@@ -1,4 +1,11 @@
+import logging
+import sys
+
 from clients.analeyezer import AnalEyeZerClient
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO,
+                    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+log = logging.getLogger(__name__)
 
 
 def filter_extracted_skills(**kwargs):
@@ -43,6 +50,6 @@ def create_joined_table_index(**kwargs):
     analeyezer = AnalEyeZerClient()
     response = analeyezer.commit_data_source(**kwargs)
     if response.status_code == 400:
-        print('Index creation to Elasticsearch failed.')
+        log.info('Index creation to Elasticsearch failed.')
     else:
-        print('Index successfully created')
+        log.info('Index successfully created')
