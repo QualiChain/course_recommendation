@@ -111,8 +111,8 @@ class Recommendation(object):
         courses_list = []
         skills_list = []
         for job in important_jobs:
-            query_response = self.execute_elastic_query(job, get_proposed_skills)
-            courses_from_batch = self.get_courses_from_query(query_response)
+            query_response = execute_elastic_query(job, get_proposed_skills)
+            courses_from_batch = get_courses_from_query(query_response)
             for element in courses_from_batch:
                 if element not in courses_list:
                     courses_list.append(element)
@@ -126,7 +126,9 @@ class Recommendation(object):
             job_top_skills = init_job_top_skills + recommended_top_skills
 
         unique_recommended_skills = order_recommended_skills(skills_list)
+        unique_recommended_courses = {"recommended_courses": courses_list}
         log.info(unique_recommended_skills)
-        print(courses_list)
+        log.info(unique_recommended_courses)
+
 
 
