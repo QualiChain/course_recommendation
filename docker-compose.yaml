@@ -1,1 +1,10 @@
+version: "3.3"
+
 services:
+  course-recommender:
+    hostname: course-recommender
+    container_name: course-recommender
+    restart: always
+    build:
+      context: "."
+      dockerfile: Dockerfile
