@@ -9,6 +9,9 @@ services:
       context: "."
       dockerfile: Dockerfile
     environment:
+      # APP ENV Vars
+      PROD_STATUS: ${PROD_STATUS}
+
       # PostgreSQL ENV Vars
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
