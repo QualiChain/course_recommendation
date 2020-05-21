@@ -3,6 +3,7 @@ import sys
 
 from clients.postgress import PostgresClient
 from clients.analeyezer import AnalEyeZerClient
+from utils import execute_elastic_query, get_courses_from_query
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -104,12 +105,14 @@ class Recommendation(object):
         get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
 
         importan_jobs = self.find_unique_jobs(get_top_jobs)
-        get_proposed_skills, initial_jobs_skills = self.proposed_skills(importan_jobs)
+        get_proposed_skills, initial_jobs_skills = self.proposed_skills(importan_jobs, cv_skills)
         courses_list = []
         for job in importan_jobs:
-            query_response = self.execute_elastic_query(job, get_proposed_skills)
-            courses_from_batch = self.get_courses_from_query(query_response)
-            courses_list.append(courses_from_batch)
+            query_response = execute_elastic_query(job, get_proposed_skills)
+            courses_from_batch = get_courses_from_query(query_response)
+            for element in courses_from_batch:
+                if element not in courses_list:
+                    courses_list.append(element)
             init_job_part = initial_jobs_skills.loc[initial_jobs_skills['job_name'] == job]
             init_job_top_skills = init_job_part['skill'].to_list()
 
@@ -122,18 +125,3 @@ class Recommendation(object):
         print(courses_list)
 
 
-    def execute_elastic_query(self, job, proposed_skills):
-        log.info("Job: {}".format(job))
-        job_part = proposed_skills.loc[proposed_skills['job_name'] == job]
-        job_top_skills = job_part['skill'].to_list()
-        analeyezer_client = AnalEyeZerClient()
-        query = analeyezer_client.create_elastic_query_for_courses(job_top_skills)
-        query_response = analeyezer_client.ask_analeyezer(query=query)
-        return query_response
-
-    def get_courses_from_query(self, query_response):
-        course_list =[]
-        for course in query_response.json()['top_tags']['buckets']:
-            element = course['top_course_hits']['hits']['hits'][0]['_source']
-            course_list.append((element['course_title'], element['course_id']))
-        return course_list

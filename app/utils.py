@@ -58,3 +58,19 @@ def create_joined_table_index(**kwargs):
         log.info('Index creation to Elasticsearch failed.')
     else:
         log.info('Index successfully created')
+
+def execute_elastic_query(job, proposed_skills):
+    log.info("Job: {}".format(job))
+    job_part = proposed_skills.loc[proposed_skills['job_name'] == job]
+    job_top_skills = job_part['skill'].to_list()
+    analeyezer_client = AnalEyeZerClient()
+    query = analeyezer_client.create_elastic_query_for_courses(job_top_skills)
+    query_response = analeyezer_client.ask_analeyezer(query=query)
+    return query_response
+
+def get_courses_from_query(query_response):
+    course_list = []
+    for course in query_response.json()['top_tags']['buckets']:
+        element = course['top_course_hits']['hits']['hits'][0]['_source']
+        course_list.append({'course_title': element['course_title'], 'course_id': element['course_id']})
+    return course_list
