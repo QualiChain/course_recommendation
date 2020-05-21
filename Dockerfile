@@ -6,5 +6,6 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 ADD app .
-RUN ls
+EXPOSE 5000
+
 CMD bash run.sh

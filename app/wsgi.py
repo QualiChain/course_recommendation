@@ -1,7 +1,9 @@
 import logging
 import sys
 
-from views import app
+
+from views.app import app
+
 from settings import API_PORT
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
