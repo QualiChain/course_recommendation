@@ -34,7 +34,10 @@ class AnalEyeZerClient(object):
         :param kwargs: provided kwargs
         :return: Matched courses from AnalEyeZer
         """
-        payload = json.dumps(kwargs)
+        if 'query' in kwargs.keys():
+            payload = json.dumps(kwargs['query'])
+        else:
+            payload = []
         headers = {'Content-Type': 'application/json'}
 
         response = requests.post(
@@ -44,7 +47,8 @@ class AnalEyeZerClient(object):
         )
         return response
 
-    def create_elastic_query_for_courses(self, skill_list):
+    @staticmethod
+    def create_elastic_query_for_courses(skill_list):
         skill_list = skill_list
         query_dict = {}
         query_dict['query'] = 'bool_query'

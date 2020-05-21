@@ -2,6 +2,7 @@ import logging
 import sys
 
 from clients.postgress import PostgresClient
+from clients.analeyezer import AnalEyeZerClient
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -100,9 +101,26 @@ class Recommendation(object):
 
         importan_jobs = self.find_unique_jobs(get_top_jobs)
         get_proposed_skills = self.proposed_skills(importan_jobs)
-
+        courses_list = []
         for job in importan_jobs:
-            log.info("Job: {}".format(job))
-            job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
-            job_top_skills = job_part['skill'].to_list()
-            log.info(job_top_skills)
+            query_response = self.execute_elastic_query(job, get_proposed_skills)
+            courses_from_batch = self.get_courses_from_query(query_response)
+            courses_list.append(courses_from_batch)
+        print(courses_list)
+
+
+    def execute_elastic_query(self, job, proposed_skills):
+        log.info("Job: {}".format(job))
+        job_part = proposed_skills.loc[proposed_skills['job_name'] == job]
+        job_top_skills = job_part['skill'].to_list()
+        analeyezer_client = AnalEyeZerClient()
+        query = analeyezer_client.create_elastic_query_for_courses(job_top_skills)
+        query_response = analeyezer_client.ask_analeyezer(query=query)
+        return query_response
+
+    def get_courses_from_query(self, query_response):
+        course_list =[]
+        for course in query_response.json()['top_tags']['buckets']:
+            element = course['top_course_hits']['hits']['hits'][0]['_source']
+            course_list.append((element['course_title'], element['course_id']))
+        return course_list
