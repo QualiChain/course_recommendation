@@ -1,5 +1,6 @@
 import logging
 import sys
+from collections import OrderedDict
 
 from clients.analeyezer import AnalEyeZerClient
 
@@ -59,6 +60,13 @@ def create_joined_table_index(**kwargs):
     else:
         log.info('Index successfully created')
 
+
+def order_recommended_skills(skills_list):
+    """This function is used to keep unique skills in order"""
+    recommended_skills = list(OrderedDict.fromkeys(skills_list))
+    return recommended_skills
+
+
 def execute_elastic_query(job, proposed_skills):
     log.info("Job: {}".format(job))
     job_part = proposed_skills.loc[proposed_skills['job_name'] == job]
@@ -67,6 +75,7 @@ def execute_elastic_query(job, proposed_skills):
     query = analeyezer_client.create_elastic_query_for_courses(job_top_skills)
     query_response = analeyezer_client.ask_analeyezer(query=query)
     return query_response
+
 
 def get_courses_from_query(query_response):
     course_list = []
