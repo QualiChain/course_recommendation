@@ -30,6 +30,10 @@ def filter_extracted_skills(**kwargs):
             filtered_skill = "".join(split_skill)
         elif skill == "Java Script":
             filtered_skill = "JavaScript"
+        elif skill == "Type Script":
+            filtered_skill = "TypeScript"
+        elif skill == "Lab VIEW":
+            filtered_skill = "LabVIEW"
         else:
             filtered_skill = skill
 
@@ -39,7 +43,8 @@ def filter_extracted_skills(**kwargs):
 def remove_dump_skills(skills_df):
     """This function is used to remove dump skills extracted from Dobie"""
     remove_skills = skills_df.loc[~skills_df['skill'].isin(
-        ['Assurance', 'LeSS', 'Computer Science', 'Development', 'Programming', 'BDD', 'TDD'])]
+        ['Assurance', 'LeSS', 'Computer Science', 'Development', 'Programming', 'BDD', 'TDD', 'Developer',
+         'Software Engineer'])]
     return remove_skills
 
 
