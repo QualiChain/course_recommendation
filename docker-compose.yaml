@@ -2,9 +2,10 @@ version: "3.3"
 
 services:
   course-recommender:
-    hostname: course-recommender
-    container_name: course-recommender
+    hostname: ${RECOMMENDER_HOSTNAME}
+    container_name: ${RECOMMENDER_HOSTNAME}
     restart: always
     build:
       context: "."
       dockerfile: Dockerfile
+    environment:
