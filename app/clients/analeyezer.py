@@ -61,8 +61,7 @@ class AnalEyeZerClient(object):
                 "fields": ["course_description", "skill_title^3"],
                 "type": "phrase",
                 "slop": 2
-            } for skill in skill_list}
-        ]
+            }} for skill in skill_list]
         query_dict['aggs'] = {
             "top_tags": {
                 "terms": {

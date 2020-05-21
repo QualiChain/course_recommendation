@@ -67,7 +67,7 @@ def order_recommended_skills(skills_list):
     return recommended_skills
 
 
-def execute_elastic_query(job, job_top_skills):
+def execute_elastic_query(job_top_skills):
     analeyezer_client = AnalEyeZerClient()
     query = analeyezer_client.create_elastic_query_for_courses(job_top_skills)
     query_response = analeyezer_client.ask_analeyezer(query=query)

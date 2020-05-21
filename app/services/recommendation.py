@@ -121,7 +121,7 @@ class Recommendation(object):
             skills_list = skills_list + recommended_top_skills
             job_top_skills = init_job_top_skills + recommended_top_skills
 
-            query_response = execute_elastic_query(job, job_top_skills)
+            query_response = execute_elastic_query(job_top_skills)
             courses_from_batch = get_courses_from_query(query_response)
             for element in courses_from_batch:
                 if element not in courses_list:
