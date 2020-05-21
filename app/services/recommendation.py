@@ -127,7 +127,7 @@ class Recommendation(object):
                 if element not in courses_list:
                     courses_list.append(element)
 
-        unique_recommended_skills = order_recommended_skills(skills_list)
+        unique_recommended_skills = {"recommended_skills": order_recommended_skills(skills_list)}
         unique_recommended_courses = {"recommended_courses": courses_list}
         log.info(unique_recommended_skills)
         log.info(unique_recommended_courses)
