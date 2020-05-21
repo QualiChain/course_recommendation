@@ -81,15 +81,19 @@ class Recommendation(object):
         important_jobs = jobs['job_name'].to_list()
         return important_jobs
 
-    def proposed_skills(self, important_jobs):
+    def proposed_skills(self, important_jobs, initial_skills):
         """This function is used to find proposed skills per job name"""
 
         statement = """SELECT * FROM extracted_skill WHERE job_name in {}""".format(tuple(important_jobs))
         table_df = self.pg_client.get_table(sql_command=statement)
 
+        initial_jobs_skills = table_df.loc[table_df['skill'].isin(initial_skills)]
+
+        table_df = table_df.loc[~table_df['skill'].isin(initial_skills)]
+
         proposed_skills_per_job = self.get_top_skills(job_skills=table_df, column='job_name', topN=5).reset_index(
             drop=True)
-        return proposed_skills_per_job
+        return proposed_skills_per_job, initial_jobs_skills
 
     def recommend(self, **kwargs):
         """This function is used to find proper recommendations for provided skills"""
@@ -100,12 +104,21 @@ class Recommendation(object):
         get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
 
         importan_jobs = self.find_unique_jobs(get_top_jobs)
-        get_proposed_skills = self.proposed_skills(importan_jobs)
+        get_proposed_skills, initial_jobs_skills = self.proposed_skills(importan_jobs)
         courses_list = []
         for job in importan_jobs:
             query_response = self.execute_elastic_query(job, get_proposed_skills)
             courses_from_batch = self.get_courses_from_query(query_response)
             courses_list.append(courses_from_batch)
+            init_job_part = initial_jobs_skills.loc[initial_jobs_skills['job_name'] == job]
+            init_job_top_skills = init_job_part['skill'].to_list()
+
+            job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
+            recommended_top_skills = job_part['skill'].to_list()
+
+            job_top_skills = init_job_top_skills + recommended_top_skills
+
+            log.info(job_top_skills)
         print(courses_list)
 
 
