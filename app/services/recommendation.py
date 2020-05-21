@@ -4,6 +4,8 @@ import sys
 from clients.postgress import PostgresClient
 from clients.analeyezer import AnalEyeZerClient
 
+from utils import order_recommended_skills
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
@@ -103,22 +105,31 @@ class Recommendation(object):
         top_job_skills = self.find_related_jobs(cv_skills=cv_skills)
         get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
 
-        importan_jobs = self.find_unique_jobs(get_top_jobs)
-        get_proposed_skills, initial_jobs_skills = self.proposed_skills(importan_jobs)
+        important_jobs = self.find_unique_jobs(get_top_jobs)
+        get_proposed_skills, initial_jobs_skills = self.proposed_skills(important_jobs, cv_skills)
+
         courses_list = []
-        for job in importan_jobs:
+        skills_list = []
+
+        for job in important_jobs:
+            log.info("Job: {}".format(job))
+
             query_response = self.execute_elastic_query(job, get_proposed_skills)
             courses_from_batch = self.get_courses_from_query(query_response)
+
             courses_list.append(courses_from_batch)
+
             init_job_part = initial_jobs_skills.loc[initial_jobs_skills['job_name'] == job]
             init_job_top_skills = init_job_part['skill'].to_list()
 
             job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
             recommended_top_skills = job_part['skill'].to_list()
 
+            skills_list = skills_list + recommended_top_skills
             job_top_skills = init_job_top_skills + recommended_top_skills
 
-            log.info(job_top_skills)
+        unique_recommended_skills = order_recommended_skills(skills_list)
+        log.info(unique_recommended_skills)
         print(courses_list)
 
 

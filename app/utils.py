@@ -1,5 +1,6 @@
 import logging
 import sys
+from collections import OrderedDict
 
 from clients.analeyezer import AnalEyeZerClient
 
@@ -58,3 +59,9 @@ def create_joined_table_index(**kwargs):
         log.info('Index creation to Elasticsearch failed.')
     else:
         log.info('Index successfully created')
+
+
+def order_recommended_skills(skills_list):
+    """This function is used to keep unique skills in order"""
+    recommended_skills = list(OrderedDict.fromkeys(skills_list))
+    return recommended_skills
