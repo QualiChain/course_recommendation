@@ -2,7 +2,7 @@ import logging
 import sys
 
 from clients.postgress import PostgresClient
-from clients.analeyezer import AnalEyeZerClient
+
 from utils import execute_elastic_query, get_courses_from_query
 
 from utils import order_recommended_skills
@@ -111,26 +111,42 @@ class Recommendation(object):
         courses_list = []
         skills_list = []
         for job in important_jobs:
-            log.info("Job: {}".format(job))
-            init_job_part = initial_jobs_skills.loc[initial_jobs_skills['job_name'] == job]
-            init_job_top_skills = init_job_part['skill'].to_list()
+            job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills, initial_jobs_skills, job,
+                                                                      skills_list)
+            self.extract_recommended_courses(courses_list, job_top_skills)
 
-            job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
-            recommended_top_skills = job_part['skill'].to_list()
-
-            skills_list = skills_list + recommended_top_skills
-            job_top_skills = init_job_top_skills + recommended_top_skills
-
-            query_response = execute_elastic_query(job_top_skills)
-            courses_from_batch = get_courses_from_query(query_response)
-            for element in courses_from_batch:
-                if element not in courses_list:
-                    courses_list.append(element)
-
-        unique_recommended_skills = {"recommended_skills": order_recommended_skills(skills_list)}
-        unique_recommended_courses = {"recommended_courses": courses_list}
+        unique_recommended_skills = order_recommended_skills(skills_list)
+        unique_recommended_courses = courses_list
         log.info(unique_recommended_skills)
         log.info(unique_recommended_courses)
+        return {"recommended_skills": order_recommended_skills(skills_list),
+                "recommended_courses": courses_list}
 
+    @staticmethod
+    def extract_recommended_courses(courses_list, job_top_skills):
+        """
+        Iteratively completes recommended courses list
+        :param courses_list: existing courses list
+        :param job_top_skills: batch of top skills for given job title
+        :return:
+        """
+        query_response = execute_elastic_query(job_top_skills)
+        courses_from_batch = get_courses_from_query(query_response)
+        for element in courses_from_batch:
+            if element not in courses_list:
+                courses_list.append(element)
+
+    @staticmethod
+    def extract_job_top_skills(get_proposed_skills, initial_jobs_skills, job, skills_list):
+        """This function returns a list of skills regarding the given batch and a contineuously updated list of
+        recommended skills  """
+        log.info("Job: {}".format(job))
+        init_job_part = initial_jobs_skills.loc[initial_jobs_skills['job_name'] == job]
+        init_job_top_skills = init_job_part['skill'].to_list()
+        job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
+        recommended_top_skills = job_part['skill'].to_list()
+        skills_list = skills_list + recommended_top_skills
+        job_top_skills = init_job_top_skills + recommended_top_skills
+        return job_top_skills, skills_list
 
 

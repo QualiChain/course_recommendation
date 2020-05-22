@@ -68,6 +68,7 @@ def order_recommended_skills(skills_list):
 
 
 def execute_elastic_query(job_top_skills):
+    """This function creates and executes the elastic query for recommending courses for given skills."""
     analeyezer_client = AnalEyeZerClient()
     query = analeyezer_client.create_elastic_query_for_courses(job_top_skills)
     query_response = analeyezer_client.ask_analeyezer(query=query)
@@ -75,6 +76,7 @@ def execute_elastic_query(job_top_skills):
 
 
 def get_courses_from_query(query_response):
+    """This function parses and returns the results (recommended courses) of the elastic query in a list """
     course_list = []
     for course in query_response.json()['top_tags']['buckets']:
         element = course['top_course_hits']['hits']['hits'][0]['_source']

@@ -3,6 +3,7 @@ import sys
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from services.recommendation import Recommendation
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -24,15 +25,12 @@ def get_skills_from_cv():
     '''
 
     cv = request.get_json()
-    if cv is not None:
+    try:
         skill_list = [skill['SkillLabel'] for skill in cv['Skills']]
-        results = {'skills': skill_list}
-        status = '200'
-    else:
-        description = 'Incorrect Request'
-        results = {}
-        status = '400'
+        recommender = Recommendation()
+        response = recommender.recommend(cv_skills=skill_list)
+        return response, 200
+    except Exception as ex:
+        log.error(ex)
+        return ex, 400
 
-    results = {'status': status, 'results': results}
-
-    return jsonify(results)

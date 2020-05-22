@@ -49,6 +49,12 @@ class AnalEyeZerClient(object):
 
     @staticmethod
     def create_elastic_query_for_courses(skill_list):
+        '''
+        This method creates the query parameters that are sent to the Analeyezer to create and execute the Elastic
+        Search query for the recommended courses.
+        :param skill_list: list of skills
+        :return: query parameters (JSON)
+        '''
         skill_list = skill_list
         query_dict = {}
         query_dict['query'] = 'bool_query'
