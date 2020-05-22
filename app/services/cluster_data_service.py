@@ -8,16 +8,16 @@ from scipy import spatial
 
 
 class ClusterDataService(object):
-    """This Class is used to take job posts and feed them to Dobie"""
+    """This Class is used to provide clustering specific information """
 
     def __init__(self):
         self.engine = create_engine(settings.ENGINE_STRING)
 
     def get_clustering_skills(self):
         """
-        This function is used to get job_posts table from DB
+        This function is used to get the skills used for clustering from DB
 
-        :return: job_posts table
+        :return: clustering_skills
         """
         select_query = 'select * from clustering_skills;'
 
@@ -53,6 +53,7 @@ class ClusterDataService(object):
 
 
 class RecommenderService(object):
+    """ This class is used to  provide recommendations based on clustering info"""
 
     def __init__(self, skills):
         self.skills = skills

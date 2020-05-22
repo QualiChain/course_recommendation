@@ -13,9 +13,6 @@ api = Api(app)
 class PersonalisedSkillsRecommendation(Resource):
 
     def post(self):
-        """
-        Create a new User
-        """
         data = request.get_json()
         user_skills = data['Skills']
 
