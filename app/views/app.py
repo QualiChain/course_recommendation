@@ -3,7 +3,10 @@ import sys
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from services.recommendation import Recommendation
+
+import sys
+
+from views.api_utils import start_recommendation
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -15,21 +18,21 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/get_skills_from_cv', methods=['POST'])
-def get_skills_from_cv():
+@app.route('/recommend', methods=['POST'])
+def recommend():
     '''
-    This api call reads a CV and returns the included skills.
+    This api call reads a CV, list of skills or job tiles and returns recommended skills, courses or job titles.
     Post body(json):
-    {}
-    :return: Returns a list of skills in JSON format.
+    {"source":{--source, for example a CV},
+    "source_type": "cv, skills or job_titles",
+    "recommendation_type": "courses, skills or job_titles"}
+    :return: Returns a list of recommended assets in JSON format.
     '''
 
-    cv = request.get_json()
+    parameters = request.get_json()
     try:
-        skill_list = [skill['SkillLabel'] for skill in cv['Skills']]
-        recommender = Recommendation()
-        response = recommender.recommend(cv_skills=skill_list)
-        return response, 200
+        response = start_recommendation(parameters=parameters)
+        return response
     except Exception as ex:
         log.error(ex)
         return ex, 400

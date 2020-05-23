@@ -18,28 +18,6 @@ class Recommendation(object):
     def __init__(self):
         self.pg_client = PostgresClient()
 
-    # def start_recommendation(self):
-    #     if self.source_type == 'cv':
-    #         if self.recommendation_type == 'courses':
-    #             skills_list = self.retrieve_skills_from_cv()
-    #             elastic_query = self.create_elastic_query_for_courses(skills_list)
-    #             query_response = ask_analeyezer(elastic_query)
-    #         elif self.recommendation_type == 'skills':
-    #             pass
-    #         elif self.recommendation_type == 'job_titles':
-    #             pass
-    #     elif self.source_type == 'skills':
-    #         if self.recommendation_type == 'courses':
-    #             pass
-    #         elif self.recommendation_type == 'skills':
-    #             pass
-    #         elif self.recommendation_type == 'job_titles':
-    #             pass
-    #     elif self.source_type == 'job_titles':
-    #         if self.recommendation_type == 'courses':
-    #             pass
-    #         elif self.recommendation_type == 'skills':
-    #             pass
 
     def find_related_jobs(self, **kwargs):
         """

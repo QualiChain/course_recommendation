@@ -82,3 +82,4 @@ def get_courses_from_query(query_response):
         element = course['top_course_hits']['hits']['hits'][0]['_source']
         course_list.append({'course_title': element['course_title'], 'course_id': element['course_id']})
     return course_list
+
