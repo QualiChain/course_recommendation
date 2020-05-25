@@ -86,15 +86,21 @@ class Recommendation(object):
 
         important_jobs = self.find_unique_jobs(get_top_jobs)
         get_proposed_skills, initial_jobs_skills = self.proposed_skills(important_jobs, cv_skills)
+
         courses_list = []
         skills_list = []
+
         for job in important_jobs:
-            job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills, initial_jobs_skills, job,
-                                                                      skills_list)
+            job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills,
+                                                                      initial_jobs_skills,
+                                                                      job,
+                                                                      skills_list
+                                                                      )
             self.extract_recommended_courses(courses_list, job_top_skills)
 
         unique_recommended_skills = order_recommended_skills(skills_list)
         unique_recommended_courses = courses_list
+
         log.info(unique_recommended_skills)
         log.info(unique_recommended_courses)
         return {"recommended_skills": order_recommended_skills(skills_list),
@@ -110,6 +116,7 @@ class Recommendation(object):
         """
         query_response = execute_elastic_query(job_top_skills)
         courses_from_batch = get_courses_from_query(query_response)
+
         for element in courses_from_batch:
             if element not in courses_list:
                 courses_list.append(element)
@@ -119,10 +126,13 @@ class Recommendation(object):
         """This function returns a list of skills regarding the given batch and a contineuously updated list of
         recommended skills  """
         log.info("Job: {}".format(job))
+
         init_job_part = initial_jobs_skills.loc[initial_jobs_skills['job_name'] == job]
         init_job_top_skills = init_job_part['skill'].to_list()
+
         job_part = get_proposed_skills.loc[get_proposed_skills['job_name'] == job]
         recommended_top_skills = job_part['skill'].to_list()
+
         skills_list = skills_list + recommended_top_skills
         job_top_skills = init_job_top_skills + recommended_top_skills
         return job_top_skills, skills_list

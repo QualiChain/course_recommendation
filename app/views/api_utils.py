@@ -1,9 +1,11 @@
 from services.recommendation import Recommendation
 import logging
 import sys
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
+
 
 def start_recommendation(**kwargs):
     """This function decides which type of recommendation is made."""

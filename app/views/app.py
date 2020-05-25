@@ -36,4 +36,3 @@ def recommend():
     except Exception as ex:
         log.error(ex)
         return ex, 400
-
