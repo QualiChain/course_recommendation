@@ -15,6 +15,13 @@ You can access Course Recommender from port `5000`
 2. go to /app/views/ folder using this command: `cd /app/views`
 3. and then  execute this command: `python -m flask run`
 
+### Join Courses and Skills tables
+
+Initially before running Course Recommendation module you should execute the following command
+in orded to have a merged table that contains Courses and Skills.
+
+`docker exec python join_tables_skill_courses.py`
+
 ### Recommendation API example usage
 
 **Recommendations using ElasticSearch Functionalities**
