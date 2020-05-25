@@ -1,5 +1,10 @@
 version: "3.3"
 
+networks:
+  config_qmediator:
+    external: true
+
+
 services:
   course-recommender:
     hostname: ${RECOMMENDER_HOSTNAME}
@@ -23,4 +28,6 @@ services:
       ANALEYEZER_PORT: ${ANALEYEZER_PORT}
 
     ports:
-    - ${API_PORT}:5000
+      - ${API_PORT}:5000
+    networks:
+      - config_qmediator
