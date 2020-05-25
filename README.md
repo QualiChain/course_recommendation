@@ -17,6 +17,7 @@ You can access Course Recommender from port `5000`
 
 ### Recommendation API example usage
 
+**Recommendations using ElasticSearch Functionalities**
 ```http request
 POST /recommend HTTP/1.1
 Host: localhost:5000
@@ -75,4 +76,28 @@ Content-Type: application/json
 "source_type": "cv",
 "recommendation_type": "courses"}
 
+```
+
+**Recommendations using Clustering**
+
+```http request
+POST /get_recommended_skills HTTP/1.1
+Host: 127.0.0.1:5000
+Content-Type: application/json
+
+{
+	"Skills":
+	[{"SkillLabel":"Java"}, {"SkillLabel":"SQL"}]	
+}
+```
+
+```http request
+POST /get_recommended_courses HTTP/1.1
+Host: 127.0.0.1:5000
+Content-Type: application/json
+
+{
+	"Skills":
+	[{"SkillLabel":"Java"}, {"SkillLabel":"SQL"}]	
+}
 ```
