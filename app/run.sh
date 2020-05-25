@@ -3,7 +3,7 @@
 check_connectivity() {
     echo 'Check if AnalEyeZer is up...'
 
-    while ! nc -zv ${ANALEYEZER_HOST} 5002; do
+    while ! nc -z ${ANALEYEZER_HOST} 5000; do
 
       sleep 0.1
 
@@ -11,7 +11,7 @@ check_connectivity() {
     echo 'AnalEyeZer is up and Running'
 
     echo 'Check if PostgreSQL is up...'
-    while ! nc -zv ${POSTGRES_HOST} 5432; do
+    while ! nc -z ${POSTGRES_HOST} 5432; do
       sleep 0.1
     done
     echo 'PostgreSQL is up and Running'
