@@ -31,7 +31,7 @@ class Recommendation(object):
         cv_skills_tuple = tuple(lower_skills)
 
         if len(cv_skills_tuple) == 1:
-            sql_command = """SELECT * FROM extracted_skill WHERE lower(skill)={}""".format(cv_skills_tuple[0])
+            sql_command = """SELECT * FROM extracted_skill WHERE lower(skill)='{}'""".format(cv_skills_tuple[0])
         else:
             sql_command = """SELECT * FROM extracted_skill WHERE lower(skill) in {}""".format(cv_skills_tuple)
         top_job_skills = self.pg_client.get_table(sql_command=sql_command)
