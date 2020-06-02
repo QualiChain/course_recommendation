@@ -18,7 +18,6 @@ class Recommendation(object):
     def __init__(self):
         self.pg_client = PostgresClient()
 
-
     def find_related_jobs(self, **kwargs):
         """
         This function is used to find related jobs according to provided skills
@@ -31,7 +30,10 @@ class Recommendation(object):
         lower_skills = [skill.lower() for skill in cv_skills]
         cv_skills_tuple = tuple(lower_skills)
 
-        sql_command = """SELECT * FROM extracted_skill WHERE lower(skill) in {}""".format(cv_skills_tuple)
+        if len(cv_skills_tuple) == 1:
+            sql_command = """SELECT * FROM extracted_skill WHERE lower(skill)={}""".format(cv_skills_tuple[0])
+        else:
+            sql_command = """SELECT * FROM extracted_skill WHERE lower(skill) in {}""".format(cv_skills_tuple)
         top_job_skills = self.pg_client.get_table(sql_command=sql_command)
         return top_job_skills
 
@@ -136,5 +138,3 @@ class Recommendation(object):
         skills_list = skills_list + recommended_top_skills
         job_top_skills = init_job_top_skills + recommended_top_skills
         return job_top_skills, skills_list
-
-
