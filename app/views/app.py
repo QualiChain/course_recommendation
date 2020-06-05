@@ -61,7 +61,7 @@ def get_recommended_courses():
 
     skill_names = []
     for s in user_skills:
-        skill_names.append(s['labell'])
+        skill_names.append(s['label'])
 
     recommender_service = RecommenderService(skill_names)
     recommended_courses = recommender_service.get_recommended_courses()
