@@ -43,11 +43,11 @@ def recommend():
 @app.route('/get_recommended_skills', methods=['POST'])
 def get_recommended_skills():
     data = request.get_json()
-    user_skills = data['Skills']
+    user_skills = data['skills']
 
     skill_names = []
     for s in user_skills:
-        skill_names.append(s['SkillLabel'])
+        skill_names.append(s['label'])
 
     recommender_service = RecommenderService(skill_names)
     recommended_skills = recommender_service.get_recommended_skills()
@@ -57,11 +57,11 @@ def get_recommended_skills():
 @app.route('/get_recommended_courses', methods=['POST'])
 def get_recommended_courses():
     data = request.get_json()
-    user_skills = data['Skills']
+    user_skills = data['skills']
 
     skill_names = []
     for s in user_skills:
-        skill_names.append(s['SkillLabel'])
+        skill_names.append(s['labell'])
 
     recommender_service = RecommenderService(skill_names)
     recommended_courses = recommender_service.get_recommended_courses()

@@ -20,7 +20,7 @@ def start_recommendation(**kwargs):
         return {"Error": 'Data provided not in proper format'}, 400
     if source_type == 'cv':
         if recommendation_type == 'courses':
-            skill_list = [skill['SkillLabel'] for skill in source['Skills']]
+            skill_list = [skill['label'] for skill in source['skills']]
             recommender = Recommendation()
             response = recommender.recommend(cv_skills=skill_list)
             return response, 200
