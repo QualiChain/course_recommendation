@@ -26,8 +26,9 @@ class Recommendation(object):
         :return: related job names
         """
         cv_skills = kwargs['cv_skills']
+        print(cv_skills)
 
-        lower_skills = [skill.lower() for skill in cv_skills]
+        lower_skills = [str(skill).lower() for skill in cv_skills]
         cv_skills_tuple = tuple(lower_skills)
 
         if len(cv_skills_tuple) == 1:
@@ -62,7 +63,8 @@ class Recommendation(object):
         """
         jobs = top_skills.groupby('job_name').sum().sort_values('frequencyOfMention', ascending=False).reset_index()
         important_jobs = jobs['job_name'].to_list()
-        return important_jobs
+        important_jobs_string = [str(j) for j in important_jobs]
+        return important_jobs_string
 
     def proposed_skills(self, important_jobs, initial_skills):
         """This function is used to find proposed skills per job name"""
