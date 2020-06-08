@@ -7,7 +7,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 log = logging.getLogger(__name__)
 
 
-def start_recommendation(**kwargs):
+def start_recommendation(elk_rec=False, **kwargs):
     """This function decides which type of recommendation is made."""
     try:
         parameters = kwargs['parameters']
@@ -22,7 +22,10 @@ def start_recommendation(**kwargs):
         if recommendation_type == 'courses':
             skill_list = [skill['label'] for skill in source['skills']]
             recommender = Recommendation()
-            response = recommender.recommend(cv_skills=skill_list)
+            if elk_rec:
+                response = recommender.elk_recommend(cv_skills=skill_list)
+            else:
+                response = recommender.recommend(cv_skills=skill_list)
             return response, 200
         elif recommendation_type == 'skills':
             pass

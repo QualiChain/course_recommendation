@@ -24,7 +24,7 @@ in orded to have a merged table that contains Courses and Skills.
 
 ### Recommendation API example usage
 
-**Recommendations using ElasticSearch Functionalities**
+**Recommendations combining ElasticSearch and clustering Functionalities**
 ```http request
 POST /recommend HTTP/1.1
 Host: localhost:5000
@@ -36,20 +36,81 @@ Content-Type: application/json
    "targetSector":"IT",
    "expectedSalary":"40K",
    "Description":"It is a test CV",
-   "Skills":[
+   "skills":[
       {
-         "SkillLabel":"Java",
+         "label":"Java",
          "proficiencyLevel":"basic",
          "SkillComment":"java programming language"
 },
       {
-         "SkillLabel":"SQL",
+         "label":"SQL",
          "proficiencyLevel":"basic",
          "SkillComment":"sql"
       	
       },
            {
-         "SkillLabel":"Python",
+         "label":"Python",
+         "proficiencyLevel":"basic",
+         "SkillComment":"python"
+      	
+      }
+      
+],
+   "workHistory":[
+      {
+         "position":"developer",
+         "from":"2019-01-01",
+         "to":"2020-01-01",
+         "employer":"QualiChain"
+}
+
+
+],
+   "Education":[
+      {
+         "title":"informatic engineering",
+         "from":"2015-09-01",
+         "to":"2019-01-01",
+         "organisation":"a",
+         "description":"a"
+
+
+}
+
+
+]
+},
+"source_type": "cv",
+"recommendation_type": "courses"}
+
+```
+
+**Recommendations using ElasticSearch Functionalities**
+```http request
+POST /recommend_elk HTTP/1.1
+Host: localhost:5000
+Content-Type: application/json
+
+{"source":{
+   "PersonURI":"http://somewhere/JohnSmith",
+   "Label":"CV1",
+   "targetSector":"IT",
+   "expectedSalary":"40K",
+   "Description":"It is a test CV",
+   "skills":[
+      {
+         "label":"Java",
+         "proficiencyLevel":"basic",
+         "SkillComment":"java programming language"
+},
+      {
+         "label":"SQL",
+         "proficiencyLevel":"basic",
+         "SkillComment":"sql"
+      	
+      },
+           {
+         "label":"Python",
          "proficiencyLevel":"basic",
          "SkillComment":"python"
       	
