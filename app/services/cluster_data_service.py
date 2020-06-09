@@ -48,8 +48,9 @@ class ClusterDataService(object):
         x_pred = np.zeros(num_of_skills)
 
         for s in skills:
-            skl_idx = skills_to_idx_dict[s]
-            x_pred[skl_idx] = 1
+            skl_idx = skills_to_idx_dict.get(s, None)
+            if skl_idx:
+                x_pred[skl_idx] = 1
         return x_pred
 
 
