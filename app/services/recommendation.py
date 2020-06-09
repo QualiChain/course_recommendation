@@ -7,7 +7,7 @@ from utils import execute_elastic_query, get_courses_from_query
 
 from utils import order_recommended_skills
 
-from cluster_data_service import RecommenderService
+from services.cluster_data_service import RecommenderService
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
