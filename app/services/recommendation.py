@@ -7,6 +7,8 @@ from utils import execute_elastic_query, get_courses_from_query
 
 from utils import order_recommended_skills
 
+from app.services.cluster_data_service import RecommenderService
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
@@ -27,7 +29,7 @@ class Recommendation(object):
         """
         cv_skills = kwargs['cv_skills']
 
-        lower_skills = [skill.lower() for skill in cv_skills]
+        lower_skills = [str(skill).lower() for skill in cv_skills]
         cv_skills_tuple = tuple(lower_skills)
 
         if len(cv_skills_tuple) == 1:
@@ -62,7 +64,8 @@ class Recommendation(object):
         """
         jobs = top_skills.groupby('job_name').sum().sort_values('frequencyOfMention', ascending=False).reset_index()
         important_jobs = jobs['job_name'].to_list()
-        return important_jobs
+        important_jobs_string = [str(j) for j in important_jobs]
+        return important_jobs_string
 
     def proposed_skills(self, important_jobs, initial_skills):
         """This function is used to find proposed skills per job name"""
@@ -78,7 +81,7 @@ class Recommendation(object):
             drop=True)
         return proposed_skills_per_job, initial_jobs_skills
 
-    def recommend(self, **kwargs):
+    def elk_recommend(self, **kwargs):
         """This function is used to find proper recommendations for provided skills"""
 
         cv_skills = kwargs['cv_skills']
@@ -107,6 +110,55 @@ class Recommendation(object):
         log.info(unique_recommended_courses)
         return {"recommended_skills": order_recommended_skills(skills_list),
                 "recommended_courses": courses_list}
+
+    def recommend(self, **kwargs):
+        """This function is used to find proper recommendations for provided skills"""
+
+        cv_skills = kwargs['cv_skills']
+        courses_list = []
+
+        if len(cv_skills) > 0:
+            str_skills = [str(skill) for skill in cv_skills]
+            clustering_recommended_skills = self.get_clustering_recommended_skills(str_skills)
+
+            top_job_skills = self.find_related_jobs(cv_skills=cv_skills)
+            get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
+
+            important_jobs = self.find_unique_jobs(get_top_jobs)
+            get_proposed_skills, initial_jobs_skills = self.proposed_skills(important_jobs, cv_skills)
+
+            skills_list = clustering_recommended_skills
+            self.extract_recommended_courses(courses_list, clustering_recommended_skills)
+
+            for job in important_jobs:
+                job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills,
+                                                                          initial_jobs_skills,
+                                                                          job,
+                                                                          skills_list
+                                                                          )
+                self.extract_recommended_courses(courses_list, job_top_skills)
+
+            unique_recommended_skills = order_recommended_skills(skills_list)
+            unique_recommended_courses = courses_list
+
+            log.info(unique_recommended_skills)
+            log.info(unique_recommended_courses)
+            final_skills = order_recommended_skills(skills_list)
+        else:
+            final_skills = self.find_top_skills()
+            self.extract_recommended_courses(courses_list, final_skills)
+
+        return {"recommended_skills": final_skills,
+                "recommended_courses": courses_list}
+
+    @staticmethod
+    def get_clustering_recommended_skills(cv_skills):
+        recommender_service = RecommenderService(cv_skills)
+        clustering_recommended_skills = recommender_service.get_recommended_skills()
+
+        skills = [str(s) for key in clustering_recommended_skills for s in clustering_recommended_skills[key]]
+        unique_skills = set(skills)
+        return list(unique_skills)
 
     @staticmethod
     def extract_recommended_courses(courses_list, job_top_skills):
@@ -138,3 +190,15 @@ class Recommendation(object):
         skills_list = skills_list + recommended_top_skills
         job_top_skills = init_job_top_skills + recommended_top_skills
         return job_top_skills, skills_list
+
+    def find_top_skills(self, skills_count=20):
+        """
+        This function is used to find the top required skills
+
+        :return: skill names
+        """
+        sql_command = """SELECT * FROM extracted_skill where kind='tool' order by 4 desc limit {}""".format(skills_count)
+        top_skills = self.pg_client.get_table(sql_command=sql_command)
+        print(top_skills)
+        skills_list = [rows.skill for _, rows in top_skills.iterrows()]
+        return skills_list

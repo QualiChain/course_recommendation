@@ -29,11 +29,32 @@ def recommend():
     "source_type": "cv, skills or job_titles",
     "recommendation_type": "courses, skills or job_titles"}
     :return: Returns a list of recommended assets in JSON format.
+    It ustilises both the clustering and the ELK recommendation logic
     '''
 
     parameters = request.get_json()
     try:
         response = start_recommendation(parameters=parameters)
+        return response
+    except Exception as ex:
+        log.error(ex)
+        return ex, 400
+
+
+@app.route('/recommend_elk', methods=['POST'])
+def elk_recommend():
+    '''
+    This api call reads a CV, list of skills or job tiles and returns recommended skills, courses or job titles.
+    Post body(json):
+    {"source":{--source, for example a CV},
+    "source_type": "cv, skills or job_titles",
+    "recommendation_type": "courses, skills or job_titles"}
+    :return: Returns a list of recommended assets in JSON format using the elasticsearch recommendationlogic.
+    '''
+
+    parameters = request.get_json()
+    try:
+        response = start_recommendation(elk_rec=True, parameters=parameters)
         return response
     except Exception as ex:
         log.error(ex)
