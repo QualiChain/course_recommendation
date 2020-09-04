@@ -4,6 +4,8 @@ import settings
 import numpy as np
 import json
 from utils import execute_elastic_query, get_courses_from_query
+from clients.postgress import PostgresClient
+
 
 from scipy import spatial
 
@@ -59,6 +61,7 @@ class RecommenderService(object):
 
     def __init__(self, skills):
         self.skills = skills
+        self.pg_client = PostgresClient()
         skill_extractor = ClusterDataService()
         self.clustering_skills = skill_extractor.get_clustering_skills()
         self.centroids_array = skill_extractor.get_centroids_array()
@@ -84,9 +87,10 @@ class RecommenderService(object):
 
     def get_recommended_courses(self):
         rec_skills = self.get_recommended_skills()
+        rec_skills_filtered = self.remove_generic_skills(rec_skills)
         top_skills = []
-        for key in rec_skills:
-            top_skills += rec_skills[key]
+        for key in rec_skills_filtered:
+            top_skills += rec_skills_filtered[key]
         query_resp = execute_elastic_query(top_skills)
         recommended_courses = get_courses_from_query(query_resp)
         return recommended_courses
@@ -100,4 +104,21 @@ class RecommenderService(object):
             i += 1
 
         return np.argsort(distance_vec)[0:3]
+
+    def get_non_generic_skills(self):
+        sql_command = """select count(*) as c, skill from extracted_skill where kind!='topic' group by skill order by c desc"""
+        top_skills = self.pg_client.get_table(sql_command=sql_command)
+        skills_list = [rows.skill for _, rows in top_skills.iterrows()]
+        return skills_list
+
+    def remove_generic_skills(self, rec_skills):
+        skills_list = self.get_non_generic_skills()
+        final_skills = {}
+        for key in rec_skills:
+            final_skills[key] = []
+            for s in rec_skills[key]:
+                if s in skills_list:
+                    final_skills[key].append(s)
+        return final_skills
+
 
