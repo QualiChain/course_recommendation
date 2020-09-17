@@ -14,6 +14,24 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
 log = logging.getLogger(__name__)
 
 
+def find_matching_score_for_courses(courses_list):
+    max_hits = find_max_hits(courses_list)
+    for c in courses_list:
+        hits = c['hits']
+        c['score'] = hits/max_hits
+        del c['hits']
+    return courses_list
+
+
+def find_max_hits(courses_list):
+    max_hits = 0
+    for c in courses_list:
+        hits = c['hits']
+        if hits > max_hits:
+            max_hits = hits
+    return max_hits
+
+
 class Recommendation(object):
     """This Python Object implements Recommendation Pipeline"""
 
@@ -147,6 +165,7 @@ class Recommendation(object):
         else:
             final_skills = self.find_top_skills()
             self.extract_recommended_courses(courses_list, final_skills)
+        find_matching_score_for_courses(courses_list)
 
         return {"recommended_skills": final_skills,
                 "recommended_courses": courses_list}
@@ -170,6 +189,7 @@ class Recommendation(object):
         """
         query_response = execute_elastic_query(job_top_skills)
         courses_from_batch = get_courses_from_query(query_response)
+        print('__________courses_from_batch = ', query_response)
 
         for element in courses_from_batch:
             if element not in courses_list:

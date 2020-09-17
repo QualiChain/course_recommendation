@@ -80,6 +80,7 @@ def get_courses_from_query(query_response):
     course_list = []
     for course in query_response.json()['top_tags']['buckets']:
         element = course['top_course_hits']['hits']['hits'][0]['_source']
-        course_list.append({'course_title': element['course_title'], 'course_id': element['course_id']})
+        hits = course['top_course_hits']['hits']['total']['value']
+        course_list.append({'course_title': element['course_title'], 'course_id': element['course_id'], 'hits': hits})
     return course_list
 
