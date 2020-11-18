@@ -17,7 +17,8 @@ if __name__ == "__main__":
     part = "skills_courses_table"
     index = "curriculum_index"
 
-    ntua_curriculum_info = post_client.join_skills_and_courses()
+    # ntua_curriculum_info = post_client.join_skills_and_courses()
+    post_client.handle_qualichain_courses_data()
 
     # post_client.load_joined_table_to_db()
     # print(joined_table.head())

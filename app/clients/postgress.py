@@ -8,7 +8,6 @@ from settings import ENGINE_STRING, QUALICHAIN_ENGINE_STRING
 
 from utils import filter_extracted_skills, remove_dump_skills
 
-
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 log = logging.getLogger(__name__)
@@ -71,6 +70,17 @@ class PostgresClient(object):
             ['course_id', 'course_name', 'course_title', 'course_description', 'skill_id', 'skill_title']
         ]
         return joined_courses_info
+
+    def handle_qualichain_courses_data(self):
+        """This function is used to load and handle QualiChain courses skills relation from Dobie"""
+        qc_courses_skills = pd.read_sql_table('skills_courses', self.qualichain_db_engine)
+        qc_skills = pd.read_sql_table('skills', self.qualichain_db_engine)
+
+        qc_merged_info = pd.merge(qc_courses_skills, qc_skills, left_on='skill_id', right_on='id')
+        grouped_qc_info = qc_merged_info.groupby('course_id').agg({
+            'name': lambda x: list(x)
+        }).reset_index().rename(columns={'name': 'skill_title'})
+        print(grouped_qc_info.head())
 
     def load_joined_table_to_db(self, skills_courses_info):
         """Upload joined table to DB"""
