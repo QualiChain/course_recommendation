@@ -4,9 +4,10 @@ import sys
 from sqlalchemy import create_engine
 import pandas as pd
 
-from settings import ENGINE_STRING
+from settings import ENGINE_STRING, QUALICHAIN_ENGINE_STRING
 
 from utils import filter_extracted_skills, remove_dump_skills
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -20,6 +21,7 @@ class PostgresClient(object):
 
     def __init__(self):
         self.engine = create_engine(ENGINE_STRING)
+        self.qualichain_db_engine = create_engine(QUALICHAIN_ENGINE_STRING)
 
     def get_table(self, **kwargs):
         """
@@ -54,25 +56,34 @@ class PostgresClient(object):
         """This function is used to join courses and skills tables"""
 
         log.info("Joining tables Skills and Courses")
-
         courses_df, course_skill_df, skill_df = self.load_tables()
+
         temp = pd.merge(courses_df, course_skill_df, left_on='id', right_on='course_id')
         joined_table = pd.merge(temp, skill_df, left_on='skill_id', right_on='id')
+
         joined_table = joined_table[['id_x', 'course_title', 'course_description', 'skill_id', 'skill_title']].rename(
             columns={'id_x': 'course_id'})
-        return joined_table
+        grouped_courses_skills = joined_table.groupby('course_id').agg({
+            'skill_id': lambda x: list(x),
+            'skill_title': lambda x: list(x)}
+        ).reset_index()
+        joined_courses_info = pd.merge(grouped_courses_skills, courses_df, left_on='course_id', right_on='id')[
+            ['course_id', 'course_name', 'course_title', 'course_description', 'skill_id', 'skill_title']
+        ]
+        return joined_courses_info
 
-    def load_joined_table_to_db(self):
+    def load_joined_table_to_db(self, skills_courses_info):
         """Upload joined table to DB"""
 
         log.info("Uploading joined table to Postgres")
 
         table_exists = self.engine.has_table('skills_courses_table')
         if not table_exists:
-            joined_table = self.join_skills_and_courses()
+            # joined_table = self.join_skills_and_courses()
+            # print(joined_table.head())
             self.save_table(
                 table_name='skills_courses_table',
-                data_frame=joined_table,
+                data_frame=skills_courses_info,
                 if_exists='replace'
             )
             log.info("Table saved to Postgres")

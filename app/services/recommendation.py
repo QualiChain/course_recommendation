@@ -219,6 +219,5 @@ class Recommendation(object):
         """
         sql_command = """SELECT * FROM extracted_skill where kind='tool' order by 4 desc limit {}""".format(skills_count)
         top_skills = self.pg_client.get_table(sql_command=sql_command)
-        print(top_skills)
         skills_list = [rows.skill for _, rows in top_skills.iterrows()]
         return skills_list

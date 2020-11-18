@@ -17,14 +17,17 @@ if __name__ == "__main__":
     part = "skills_courses_table"
     index = "curriculum_index"
 
-    post_client.load_joined_table_to_db()
+    ntua_curriculum_info = post_client.join_skills_and_courses()
 
-    create_joined_table_index(
-        uri=uri,
-        type=type,
-        part=part,
-        index=index
-    )
+    # post_client.load_joined_table_to_db()
+    # print(joined_table.head())
 
-    log.info("Transform saved extracted skills from Dobie")
-    post_client.transform_extracted_skills()
+    # create_joined_table_index(
+    #     uri=uri,
+    #     type=type,
+    #     part=part,
+    #     index=index
+    # )
+    #
+    # log.info("Transform saved extracted skills from Dobie")
+    # post_client.transform_extracted_skills()
