@@ -3,6 +3,7 @@ import sys
 
 from sqlalchemy import create_engine
 import pandas as pd
+import numpy as np
 
 from settings import ENGINE_STRING, QUALICHAIN_ENGINE_STRING
 
@@ -79,24 +80,33 @@ class PostgresClient(object):
         qc_merged_info = pd.merge(qc_courses_skills, qc_skills, left_on='skill_id', right_on='id')
         grouped_qc_info = qc_merged_info.groupby('course_id').agg({
             'name': lambda x: list(x)
-        }).reset_index().rename(columns={'name': 'skill_title'})
-        print(grouped_qc_info.head())
+        }).reset_index().rename(columns={'name': 'dobie_skill_title'})
+        return grouped_qc_info
+
+    def construct_df_with_all_skills(self):
+        """This function is used to combine ntua curriculum with skills extracted from Dobie"""
+        ntua_curriculum_info = self.join_skills_and_courses()
+        courses_skills_from_dobie = self.handle_qualichain_courses_data()
+
+        merged_data = pd.merge(ntua_curriculum_info, courses_skills_from_dobie, how='outer', on='course_id')
+        merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].apply(lambda x: [] if x is np.NaN else x)
+
+        merged_data = merged_data[merged_data['course_name'].notna()]
+        merged_data['skill_title'] = merged_data['skill_title'].astype(str)
+        merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].astype(str)
+        return merged_data
 
     def load_joined_table_to_db(self, skills_courses_info):
         """Upload joined table to DB"""
 
         log.info("Uploading joined table to Postgres")
 
-        table_exists = self.engine.has_table('skills_courses_table')
-        if not table_exists:
-            # joined_table = self.join_skills_and_courses()
-            # print(joined_table.head())
-            self.save_table(
-                table_name='skills_courses_table',
-                data_frame=skills_courses_info,
-                if_exists='replace'
-            )
-            log.info("Table saved to Postgres")
+        self.save_table(
+            table_name='skills_courses_table',
+            data_frame=skills_courses_info,
+            if_exists='replace'
+        )
+        log.info("Table saved to Postgres")
 
     def transform_extracted_skills(self):
         """This function is used to transform skills in extracted skill"""
