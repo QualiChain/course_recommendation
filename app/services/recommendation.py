@@ -160,12 +160,14 @@ class Recommendation(object):
             log.info(unique_recommended_skills)
             log.info(unique_recommended_courses)
             final_skills = order_recommended_skills(skills_list)
+            skills_info = self.pg_client.match_saro_skills(final_skills)
         else:
             final_skills = self.find_top_skills()
             self.extract_recommended_courses(courses_list, final_skills)
+            skills_info = self.pg_client.match_saro_skills(final_skills)
         find_matching_score_for_courses(courses_list)
 
-        return {"recommended_skills": final_skills,
+        return {"recommended_skills": skills_info,
                 "recommended_courses": courses_list}
 
     @staticmethod

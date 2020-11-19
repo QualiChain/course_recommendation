@@ -23,6 +23,21 @@ class PostgresClient(object):
         self.engine = create_engine(ENGINE_STRING)
         self.qualichain_db_engine = create_engine(QUALICHAIN_ENGINE_STRING)
 
+    def match_saro_skills(self, skills):
+        """This function is used to match skills from Qualichain DB"""
+        transformed_skills = [skill.lower() for skill in skills]
+        GET_SKILLS = """SELECT id, name FROM skills WHERE lower(name) in {skills}""".format(
+            skills=tuple(transformed_skills)
+        )
+        skills_data = pd.read_sql_query(GET_SKILLS, self.qualichain_db_engine)
+
+        skills_data['name'] = skills_data['name'].apply(lambda x: x.lower())
+        skills_data = skills_data.drop_duplicates(subset=['name'])
+
+        skills_info = list(skills_data.to_dict(orient='index').values())
+        skills_info_sorted = sorted(skills_info, key=lambda x: transformed_skills.index(x['name'].lower()))
+        return skills_info_sorted
+
     def get_table(self, **kwargs):
         """
         This function is used to load the provided table as a Pandas DataFrame
