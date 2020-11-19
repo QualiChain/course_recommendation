@@ -25,7 +25,7 @@ QUALICHAIN_ENGINE_STRING = 'postgresql+psycopg2://{}:{}@{}:{}/{}'.format(
 # Analeyezer Settings
 ANALEYEZER_HOST = os.environ.get("ANALEYEZER_HOST", "qualichain.epu.ntua.gr")
 ANALEYEZER_PORT = os.environ.get("ANALEYEZER_PORT", 5002)
-CURRICULUM_INDEX = os.environ.get("CURRICULUM_INDEX", "curriculum_index_temp")
+CURRICULUM_INDEX = os.environ.get("CURRICULUM_INDEX", "curriculum_index")
 
 ASK_STORAGE_URI = "http://{}:{}/ask/storage".format(
     ANALEYEZER_HOST,
