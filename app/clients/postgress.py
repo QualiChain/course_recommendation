@@ -3,8 +3,9 @@ import sys
 
 from sqlalchemy import create_engine
 import pandas as pd
+import numpy as np
 
-from settings import ENGINE_STRING
+from settings import ENGINE_STRING, QUALICHAIN_ENGINE_STRING
 
 from utils import filter_extracted_skills, remove_dump_skills
 
@@ -20,6 +21,7 @@ class PostgresClient(object):
 
     def __init__(self):
         self.engine = create_engine(ENGINE_STRING)
+        self.qualichain_db_engine = create_engine(QUALICHAIN_ENGINE_STRING)
 
     def get_table(self, **kwargs):
         """
@@ -54,28 +56,57 @@ class PostgresClient(object):
         """This function is used to join courses and skills tables"""
 
         log.info("Joining tables Skills and Courses")
-
         courses_df, course_skill_df, skill_df = self.load_tables()
+
         temp = pd.merge(courses_df, course_skill_df, left_on='id', right_on='course_id')
         joined_table = pd.merge(temp, skill_df, left_on='skill_id', right_on='id')
+
         joined_table = joined_table[['id_x', 'course_title', 'course_description', 'skill_id', 'skill_title']].rename(
             columns={'id_x': 'course_id'})
-        return joined_table
+        grouped_courses_skills = joined_table.groupby('course_id').agg({
+            'skill_id': lambda x: list(x),
+            'skill_title': lambda x: list(x)}
+        ).reset_index()
+        joined_courses_info = pd.merge(grouped_courses_skills, courses_df, left_on='course_id', right_on='id')[
+            ['course_id', 'course_name', 'course_title', 'course_description', 'skill_id', 'skill_title']
+        ]
+        return joined_courses_info
 
-    def load_joined_table_to_db(self):
+    def handle_qualichain_courses_data(self):
+        """This function is used to load and handle QualiChain courses skills relation from Dobie"""
+        qc_courses_skills = pd.read_sql_table('skills_courses', self.qualichain_db_engine)
+        qc_skills = pd.read_sql_table('skills', self.qualichain_db_engine)
+
+        qc_merged_info = pd.merge(qc_courses_skills, qc_skills, left_on='skill_id', right_on='id')
+        grouped_qc_info = qc_merged_info.groupby('course_id').agg({
+            'name': lambda x: list(x)
+        }).reset_index().rename(columns={'name': 'dobie_skill_title'})
+        return grouped_qc_info
+
+    def construct_df_with_all_skills(self):
+        """This function is used to combine ntua curriculum with skills extracted from Dobie"""
+        ntua_curriculum_info = self.join_skills_and_courses()
+        courses_skills_from_dobie = self.handle_qualichain_courses_data()
+
+        merged_data = pd.merge(ntua_curriculum_info, courses_skills_from_dobie, how='outer', on='course_id')
+        merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].apply(lambda x: [] if x is np.NaN else x)
+
+        merged_data = merged_data[merged_data['course_name'].notna()]
+        merged_data['skill_title'] = merged_data['skill_title'].apply(lambda x: ",".join(x))
+        merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].apply(lambda x: ",".join(x))
+        return merged_data
+
+    def load_joined_table_to_db(self, skills_courses_info):
         """Upload joined table to DB"""
 
         log.info("Uploading joined table to Postgres")
 
-        table_exists = self.engine.has_table('skills_courses_table')
-        if not table_exists:
-            joined_table = self.join_skills_and_courses()
-            self.save_table(
-                table_name='skills_courses_table',
-                data_frame=joined_table,
-                if_exists='replace'
-            )
-            log.info("Table saved to Postgres")
+        self.save_table(
+            table_name='skills_courses_table',
+            data_frame=skills_courses_info,
+            if_exists='replace'
+        )
+        log.info("Table saved to Postgres")
 
     def transform_extracted_skills(self):
         """This function is used to transform skills in extracted skill"""

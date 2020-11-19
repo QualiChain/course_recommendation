@@ -2,7 +2,7 @@ import json
 
 import requests
 
-from settings import SUBMIT_SOURCE, ASK_STORAGE_URI
+from settings import SUBMIT_SOURCE, ASK_STORAGE_URI, CURRICULUM_INDEX
 
 
 class AnalEyeZerClient(object):
@@ -58,13 +58,13 @@ class AnalEyeZerClient(object):
         skill_list = skill_list
         query_dict = {}
         query_dict['query'] = 'bool_query'
-        query_dict['index'] = 'curriculum_index'
+        query_dict['index'] = CURRICULUM_INDEX
         query_dict['min_score'] = 10
         query_dict['_source'] = ["course_id", "course_title"]
         query_dict['should'] = [
             {"multi_match": {
                 "query": skill,
-                "fields": ["course_description", "skill_title^3"],
+                "fields": ["course_description", "dobie_skill_title", "skill_title^3"],
                 "type": "phrase",
                 "slop": 2
             }} for skill in skill_list]

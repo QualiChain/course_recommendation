@@ -3,9 +3,7 @@ import sys
 
 from clients.postgress import PostgresClient
 
-from utils import execute_elastic_query, get_courses_from_query
-
-from utils import order_recommended_skills
+from utils import execute_elastic_query, get_courses_from_query, order_recommended_skills
 
 from services.cluster_data_service import RecommenderService
 
@@ -18,7 +16,7 @@ def find_matching_score_for_courses(courses_list):
     max_hits = find_max_hits(courses_list)
     for c in courses_list:
         hits = c['hits']
-        c['score'] = hits/max_hits
+        c['score'] = hits / max_hits
         del c['hits']
     return courses_list
 
@@ -217,8 +215,8 @@ class Recommendation(object):
 
         :return: skill names
         """
-        sql_command = """SELECT * FROM extracted_skill where kind='tool' order by 4 desc limit {}""".format(skills_count)
+        sql_command = """SELECT * FROM extracted_skill where kind='tool' order by 4 desc limit {}""".format(
+            skills_count)
         top_skills = self.pg_client.get_table(sql_command=sql_command)
-        print(top_skills)
         skills_list = [rows.skill for _, rows in top_skills.iterrows()]
         return skills_list
