@@ -92,8 +92,8 @@ class PostgresClient(object):
         merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].apply(lambda x: [] if x is np.NaN else x)
 
         merged_data = merged_data[merged_data['course_name'].notna()]
-        merged_data['skill_title'] = merged_data['skill_title'].astype(str)
-        merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].astype(str)
+        merged_data['skill_title'] = merged_data['skill_title'].apply(lambda x: ",".join(x))
+        merged_data['dobie_skill_title'] = merged_data['dobie_skill_title'].apply(lambda x: ",".join(x))
         return merged_data
 
     def load_joined_table_to_db(self, skills_courses_info):

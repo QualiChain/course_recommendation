@@ -5,7 +5,7 @@ from clients.postgress import PostgresClient
 
 from utils import create_joined_table_index
 
-from settings import POSTGRES_USER, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB
+from settings import POSTGRES_USER, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB,CURRICULUM_INDEX
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -25,7 +25,7 @@ def skills_courses_to_index():
     )
     type = "POSTGRES"
     part = "skills_courses_table"
-    index = "curriculum_index_temp"
+    index = CURRICULUM_INDEX
 
     table_exists = post_client.engine.has_table(part)
     if not table_exists:
@@ -47,3 +47,5 @@ def skills_courses_to_index():
 
 if __name__ == "__main__":
     skills_courses_to_index()
+
+
