@@ -71,7 +71,8 @@ def get_recommended_skills():
 
     recommender_service = RecommenderService(skill_names)
     recommended_skills = recommender_service.get_recommended_skills()
-    recommender_service.pg_client.session.close()
+    recommender_service.pg_client.engine.dispose()
+    recommender_service.pg_client.qualichain_db_engine.dispose()
     return jsonify(recommended_skills)
 
 
@@ -86,5 +87,6 @@ def get_recommended_courses():
 
     recommender_service = RecommenderService(skill_names)
     recommended_courses = recommender_service.get_recommended_courses()
-    recommender_service.pg_client.session.close()
+    recommender_service.pg_client.engine.dispose()
+    recommender_service.pg_client.qualichain_db_engine.dispose()
     return jsonify(recommended_courses)

@@ -24,10 +24,10 @@ def start_recommendation(elk_rec=False, **kwargs):
             recommender = Recommendation()
             if elk_rec:
                 response = recommender.elk_recommend(cv_skills=skill_list)
-                recommender.pg_client.session.close()
             else:
                 response = recommender.recommend(cv_skills=skill_list)
-                recommender.pg_client.session.close()
+            recommender.pg_client.engine.dispose()
+            recommender.pg_client.qualichain_db_engine.dispose()
             return response, 200
         elif recommendation_type == 'skills':
             pass
