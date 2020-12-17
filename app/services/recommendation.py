@@ -166,7 +166,6 @@ class Recommendation(object):
             self.extract_recommended_courses(courses_list, final_skills)
             skills_info = self.pg_client.match_saro_skills(final_skills)
         find_matching_score_for_courses(courses_list)
-
         return {"recommended_skills": skills_info,
                 "recommended_courses": courses_list}
 
