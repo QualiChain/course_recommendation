@@ -105,46 +105,12 @@ class Recommendation(object):
         top_job_skills = self.find_related_jobs(cv_skills=cv_skills)
         get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
 
-        important_jobs = self.find_unique_jobs(get_top_jobs)
-        get_proposed_skills, initial_jobs_skills = self.proposed_skills(important_jobs, cv_skills)
-
         courses_list = []
         skills_list = []
 
-        for job in important_jobs:
-            job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills,
-                                                                      initial_jobs_skills,
-                                                                      job,
-                                                                      skills_list
-                                                                      )
-            self.extract_recommended_courses(courses_list, job_top_skills)
-
-        unique_recommended_skills = order_recommended_skills(skills_list)
-        unique_recommended_courses = courses_list
-
-        log.info(unique_recommended_skills)
-        log.info(unique_recommended_courses)
-        return {"recommended_skills": order_recommended_skills(skills_list),
-                "recommended_courses": courses_list}
-
-    def recommend(self, **kwargs):
-        """This function is used to find proper recommendations for provided skills"""
-
-        cv_skills = kwargs['cv_skills']
-        courses_list = []
-
-        if len(cv_skills) > 0:
-            str_skills = [str(skill) for skill in cv_skills]
-            clustering_recommended_skills = self.get_clustering_recommended_skills(str_skills)
-
-            top_job_skills = self.find_related_jobs(cv_skills=cv_skills)
-            get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
-
+        if len(get_top_jobs) > 0:
             important_jobs = self.find_unique_jobs(get_top_jobs)
             get_proposed_skills, initial_jobs_skills = self.proposed_skills(important_jobs, cv_skills)
-
-            skills_list = clustering_recommended_skills
-            self.extract_recommended_courses(courses_list, clustering_recommended_skills)
 
             for job in important_jobs:
                 job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills,
@@ -159,8 +125,45 @@ class Recommendation(object):
 
             log.info(unique_recommended_skills)
             log.info(unique_recommended_courses)
-            final_skills = order_recommended_skills(skills_list)
-            skills_info = self.pg_client.match_saro_skills(final_skills)
+        return {"recommended_skills": order_recommended_skills(skills_list),
+                "recommended_courses": courses_list}
+
+    def recommend(self, **kwargs):
+        """This function is used to find proper recommendations for provided skills"""
+
+        cv_skills = kwargs['cv_skills']
+        courses_list = []
+        skills_info = []
+
+        if len(cv_skills) > 0:
+            str_skills = [str(skill) for skill in cv_skills]
+            clustering_recommended_skills = self.get_clustering_recommended_skills(str_skills)
+
+            top_job_skills = self.find_related_jobs(cv_skills=cv_skills)
+            get_top_jobs = self.get_top_skills(top_job_skills, column='skill', topN=3)
+
+            if len(get_top_jobs) > 0:
+                important_jobs = self.find_unique_jobs(get_top_jobs)
+                get_proposed_skills, initial_jobs_skills = self.proposed_skills(important_jobs, cv_skills)
+
+                skills_list = clustering_recommended_skills
+                self.extract_recommended_courses(courses_list, clustering_recommended_skills)
+
+                for job in important_jobs:
+                    job_top_skills, skills_list = self.extract_job_top_skills(get_proposed_skills,
+                                                                              initial_jobs_skills,
+                                                                              job,
+                                                                              skills_list
+                                                                              )
+                    self.extract_recommended_courses(courses_list, job_top_skills)
+
+                unique_recommended_skills = order_recommended_skills(skills_list)
+                unique_recommended_courses = courses_list
+
+                log.info(unique_recommended_skills)
+                log.info(unique_recommended_courses)
+                final_skills = order_recommended_skills(skills_list)
+                skills_info = self.pg_client.match_saro_skills(final_skills)
         else:
             final_skills = self.find_top_skills()
             self.extract_recommended_courses(courses_list, final_skills)
